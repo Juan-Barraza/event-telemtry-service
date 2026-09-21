@@ -1,0 +1,16 @@
+server:
+  port: ${PORT:8080}
+
+aws:
+  region: ${AWS_REGION:us-east-1}
+  access-key-id: ${AWS_ACCESS_KEY_ID:test}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY:test}
+  endpoint-url: ${AWS_ENDPOINT_URL:http://localhost:4566}
+
+dynamodb:
+  table-name: ${DYNAMODB_TABLE_NAME:telemetry_events}
+
+logging:
+  level:
+    org.springframework.web.reactive: INFO
+    software.amazon.awssdk: INFO
