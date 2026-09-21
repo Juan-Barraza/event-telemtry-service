@@ -6,10 +6,12 @@ services:
     ports:
       - "4566:4566"
     environment:
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
       - SERVICES=dynamodb
       - AWS_DEFAULT_REGION=${AWS_REGION:-us-east-1}
     volumes:
       - localstack_data:/var/lib/localstack
+      - ./localstack-script/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
     networks:
       - telemetry-network
     healthcheck:
