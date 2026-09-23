@@ -1,6 +1,6 @@
 package com.bancolombia.challenge.telemetry.controller;
 
-import com.bancolombia.challenge.telemetry.dto.TelemetryRequest;
+import com.bancolombia.challenge.telemetry.dto.TransactionTelemetryRequest;
 import com.bancolombia.challenge.telemetry.dto.TelemetryResponse;
 import com.bancolombia.challenge.telemetry.service.ITelemetryService;
 import jakarta.validation.Valid;
@@ -16,23 +16,23 @@ import reactor.core.publisher.Mono;
 public class TelemetryController {
     private final ITelemetryService service;
 
-    @PostMapping
+    @PostMapping("/transactions")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<TelemetryResponse> ingestTelemetry(@Valid @RequestBody TelemetryRequest request) {
+    public Mono<TelemetryResponse> ingestTelemetry(@Valid @RequestBody TransactionTelemetryRequest request) {
         return service.processAndSave(request);
     }
 
-    @GetMapping("/device/{deviceId}")
-    public Flux<TelemetryResponse> getByDevice(
-            @PathVariable String deviceId,
-            @RequestParam(defaultValue = "false") boolean onlyCritical) {
-        return  service.getEventsByDevice(deviceId, onlyCritical);
+    @GetMapping("/account/{accountId}")
+    public Flux<TelemetryResponse> getByAccount(
+            @PathVariable String accountId,
+            @RequestParam(defaultValue = "false") boolean onlyHighRisk) {
+        return service.getEventsByAccount(accountId, onlyHighRisk);
     }
 
-    @GetMapping("/device/{deviceId}/{timestamp}")
+    @GetMapping("/account/{accountId}/{timestamp}")
     public Mono<TelemetryResponse> getDetail(
-            @PathVariable String deviceId,
+            @PathVariable String accountId,
             @PathVariable String timestamp) {
-        return service.getEventDetail(deviceId, timestamp);
+        return service.getEventDetail(accountId, timestamp);
     }
 }

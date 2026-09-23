@@ -1,12 +1,12 @@
 package com.bancolombia.challenge.telemetry.service;
 
-import com.bancolombia.challenge.telemetry.dto.TelemetryRequest;
 import com.bancolombia.challenge.telemetry.dto.TelemetryResponse;
+import com.bancolombia.challenge.telemetry.dto.TransactionTelemetryRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ITelemetryService {
-    Mono<TelemetryResponse> processAndSave(TelemetryRequest request);
-    Flux<TelemetryResponse> getEventsByDevice(String deviceId, boolean onlyCritical);
-    Mono<TelemetryResponse> getEventDetail(String deviceId, String timestamp);
+    Mono<TelemetryResponse> processAndSave(TransactionTelemetryRequest request);
+    Flux<TelemetryResponse> getEventsByAccount(String accountId, boolean onlyHighRisk);
+    Mono<TelemetryResponse> getEventDetail(String accountId, String timestamp);
 }

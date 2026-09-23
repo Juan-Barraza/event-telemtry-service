@@ -4,11 +4,14 @@ import lombok.Builder;
 
 @Builder
 public record TelemetryResponse(
-        String deviceId,
+        String transactionId,
+        String accountId,
         String timestamp,
-        Double temperature,
-        Double humidity,
+        Double amount,
+        Double calculatedFee,
+        String channel,
+        String paymentProvider,
         String status,
-        Boolean isCritical
+        Boolean isHighRisk
 ) {
 }

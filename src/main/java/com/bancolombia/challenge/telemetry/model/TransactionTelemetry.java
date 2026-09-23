@@ -1,6 +1,5 @@
 package com.bancolombia.challenge.telemetry.model;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,16 +13,21 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamoDbBean
-public class TelemetryEvent {
-    private  String deviceId;
+public class TransactionTelemetry {
+
+    private String accountId;
     private String timestamp;
-    private Double temperature;
-    private Double humidity;
-    private String status;
+    private String transactionId;
+    private Double amount;
+    private Double calculatedFee;
+    private String channel;          //  "WEB", "ATM", "MOBILE"
+    private String paymentProvider;  // "VISA", "MASTERCARD", "PSE"
+    private Boolean isHighRisk;
+    private String status;           // "NORMAL", "FLAGGED", "CRITICAL"
 
     @DynamoDbPartitionKey
-    public String getDeviceId() {
-        return this.deviceId;
+    public String getAccountId() {
+        return this.accountId;
     }
 
     @DynamoDbSortKey
