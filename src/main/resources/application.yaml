@@ -14,3 +14,7 @@ logging:
   level:
     org.springframework.web.reactive: INFO
     software.amazon.awssdk: INFO
+
+grpc:
+  server:
+    port: ${GRPC_PORT:9090}

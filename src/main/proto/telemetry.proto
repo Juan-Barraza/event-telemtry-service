@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package com.bancolombia.challenge.telemetry;
+
+option java_multiple_files = true;
+option java_package = "com.bancolombia.challenge.telemetry.grpc";
+option java_outer_classname = "TelemetryProto";
+
+service TelemetryGrpcService {
+    rpc EvaluateTransactionRisk (TransactionGrpcRequest) returns (TransactionGrpcResponse);
+
+    rpc StreamTransactionsByAccount (AccountQuery) returns (stream TransactionGrpcResponse);
+}
+
+message TransactionGrpcRequest {
+    string transaction_id = 1;
+    string account_id = 2;
+    string timestamp = 3;
+    double amount = 4;
+    string channel = 5;
+    string payment_provider = 6;
+    string status = 7;
+}
+
+message AccountQuery {
+    string account_id = 1;
+    bool high_risk_only = 2;
+}
+
+message TransactionGrpcResponse {
+    string transaction_id = 1;
+    string account_id = 2;
+    string timestamp = 3;
+    double amount = 4;
+    double calculated_fee = 5;
+    string channel = 6;
+    string payment_provider = 7;
+    string status = 8;
+    bool is_high_risk = 9;
+}
