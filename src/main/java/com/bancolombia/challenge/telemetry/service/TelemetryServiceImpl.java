@@ -3,9 +3,13 @@ package com.bancolombia.challenge.telemetry.service;
 import com.bancolombia.challenge.telemetry.dto.TelemetryResponse;
 import com.bancolombia.challenge.telemetry.dto.TransactionTelemetryRequest;
 import com.bancolombia.challenge.telemetry.model.TransactionTelemetry;
+import com.bancolombia.challenge.telemetry.pattern.factory.FeeStrategyFactory;
+import com.bancolombia.challenge.telemetry.pattern.observer.HighRiskTransactionEvent;
+import com.bancolombia.challenge.telemetry.pattern.strategy.FeeCalculationStrategy;
 import com.bancolombia.challenge.telemetry.repository.TelemetryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,6 +22,8 @@ import java.time.Instant;
 public class TelemetryServiceImpl implements ITelemetryService {
 
     private final TelemetryRepository repository;
+    private final FeeStrategyFactory feeStrategyFactory;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public Mono<TelemetryResponse> processAndSave(TransactionTelemetryRequest request) {
@@ -27,7 +33,17 @@ public class TelemetryServiceImpl implements ITelemetryService {
                 .flatMap(repository::save)
                 .retry(2)
                 .map(this::mapToResponse)
-                .doOnSuccess(saved -> log.info("Transaction telemetry saved for account: {}, transactionId: {}", saved.accountId(), saved.transactionId()))
+                .doOnSuccess(saved -> { log.info("Transaction telemetry saved for account: {}, transactionId: {}", saved.accountId(), saved.transactionId());
+                    if (Boolean.TRUE.equals(saved.isHighRisk())) {
+                        eventPublisher.publishEvent(new HighRiskTransactionEvent(
+                                saved.transactionId(),
+                                saved.accountId(),
+                                saved.amount(),
+                                saved.channel(),
+                                saved.timestamp()
+                        ));
+                    }
+                })
                 .onErrorResume(ex -> {
                     log.error("Error processing telemetry for account {}: {}", request.accountId(), ex.getMessage());
                     return Mono.error(new RuntimeException("Error processing reactive transaction telemetry", ex));
@@ -73,19 +89,20 @@ public class TelemetryServiceImpl implements ITelemetryService {
     }
 
     private TransactionTelemetry mapToEntity(TransactionTelemetryRequest req) {
-        // Cálculo temporal de regla de comisión y riesgo (se sustituirá con Factory y Strategy)
-        double fee = req.amount() * 0.015; // 1.5% tarifa base
-        boolean highRisk = req.amount() > 10000000.0 || "CRITICAL".equalsIgnoreCase(req.status());
+
+        FeeCalculationStrategy strategy = feeStrategyFactory.getStrategy(req.channel());
+        double calculateFee = strategy.calculateFee(req.amount());
+        boolean isHighRisk = req.amount() > 10000000.0 || "CRITICAL".equalsIgnoreCase(req.status()); // Needs determinate highRisk if the amount is grater than 10 million of pesos
 
         return TransactionTelemetry.builder()
                 .transactionId(req.transactionId())
                 .accountId(req.accountId())
                 .timestamp(req.timestamp())
                 .amount(req.amount())
-                .calculatedFee(fee)
+                .calculatedFee(calculateFee)
                 .channel(req.channel())
                 .paymentProvider(req.paymentProvider())
-                .isHighRisk(highRisk)
+                .isHighRisk(isHighRisk)
                 .status(req.status())
                 .build();
     }
