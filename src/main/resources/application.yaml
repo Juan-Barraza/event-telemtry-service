@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8080}
+  port: ${PORT:8081}
 
 aws:
   region: ${AWS_REGION:us-east-1}
@@ -14,6 +14,14 @@ logging:
   level:
     org.springframework.web.reactive: INFO
     software.amazon.awssdk: INFO
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operation-sorter: alpha
+    tags-sorter: alpha
 
 grpc:
   server:
