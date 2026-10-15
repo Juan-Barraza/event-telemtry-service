@@ -2,10 +2,10 @@ server:
   port: ${PORT:8081}
 
 aws:
-  region: ${AWS_REGION}
-  access-key-id: ${AWS_ACCESS_KEY_ID}
-  secret-access-key: ${AWS_SECRET_ACCESS_KEY}
-  endpoint-url: ${AWS_ENDPOINT_URL}
+  region: ${AWS_REGION:us-east-1}
+  access-key-id: ${AWS_ACCESS_KEY_ID:}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY:}
+  endpoint-url: ${AWS_ENDPOINT_URL:}
 
 dynamodb:
   table-name: ${DYNAMODB_TABLE_NAME:telemetry_events}
