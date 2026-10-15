@@ -81,7 +81,6 @@ pipeline {
         }
      }
 
- }
 
     parameters {
         booleanParam(name: 'RUN_SONAR', defaultValue: false, description: 'Ejecutar análisis SonarQube')
