@@ -10,7 +10,6 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 
 @Repository
@@ -33,7 +32,7 @@ public class TelemetryRepository {
                 .keyEqualTo(Key.builder().partitionValue(accountId).build());
 
         return Flux.from(table.query(queryConditional))
-                .flatMapIterable(Page::items);
+                .flatMapIterable(page -> page.items());
     }
 
     public Mono<TransactionTelemetry> findById(String accountId, String timestamp) {

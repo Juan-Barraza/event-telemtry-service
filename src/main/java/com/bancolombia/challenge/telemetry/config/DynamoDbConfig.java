@@ -8,6 +8,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
 import java.net.URI;
 
@@ -17,24 +18,28 @@ public class DynamoDbConfig {
     @Value("${aws.region:us-east-1}")
     private String region;
 
-    @Value("${aws.access-key-id:test}")
+    @Value("${aws.access-key-id:}")
     private String accessKey;
 
-    @Value("${aws.secret-access-key:test}")
+    @Value("${aws.secret-access-key:}")
     private String secretKey;
 
-    @Value("${aws.endpoint-url:#{null}}")
+    @Value("${aws.endpoint-url:}")
     private String endpointUrl;
 
     @Bean
     public DynamoDbAsyncClient dynamoDbAsyncClient() {
         var builder = DynamoDbAsyncClient.builder()
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)
-                ));
+                .region(Region.of(region));
 
-        if (endpointUrl != null && !endpointUrl.isBlank()) {
+        if (!accessKey.isBlank() && !secretKey.isBlank()) {
+            builder.credentialsProvider(StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(accessKey, secretKey)));
+        } else {
+            builder.credentialsProvider(DefaultCredentialsProvider.builder().build());
+        }
+
+        if (!endpointUrl.isBlank()) {
             builder.endpointOverride(URI.create(endpointUrl));
         }
 
